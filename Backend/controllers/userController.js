@@ -130,4 +130,55 @@ const login = async (req,res) =>{
 
 }
 
-export {register,login}
+const getProfile = async (req,res,next) => {
+    try {
+        // console.log(req.user);
+        
+        const userID = req.user.id
+
+        const userProfile = await User.findById(userID)
+
+        if(!userProfile) {
+            return res.status(500).json('User not found !')
+        }
+
+
+        res.status(200).json({
+            success: true ,
+            message: 'User details found !',
+            userProfile
+        })
+
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false ,
+            message: error.message
+        })
+    }
+}
+
+const logout = async (req,res) => {
+    try {
+        res.cookie('token',null,{
+            secure: true ,
+            maxAge: 0 ,
+            httpOnly: true
+        })
+
+        res.status(200).json({
+            success: true ,
+            message: 'User logged out'
+        })
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false ,
+            message: error.message
+        })
+    }
+}
+
+export {register,login,getProfile,logout}
