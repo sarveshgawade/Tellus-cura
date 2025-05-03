@@ -181,4 +181,41 @@ const logout = async (req,res) => {
     }
 }
 
-export {register,login,getProfile,logout}
+const changePassword = async (req,res) => {
+    try {
+        const {oldPassword, newPassword} = req.body
+        const userID = req.user.id
+
+        if(!oldPassword || !newPassword){return res.status(500).json('All fields are required')}
+
+        if(oldPassword == newPassword) {return res.status(500).json('Old and New password are same')}
+
+        const user = await User.findById(userID).select('+password')
+
+        if(!user) {return res.status(500).json('User not found')}
+
+        const isPasswordCorrect = await user.comparePassword(oldPassword)
+
+        if(!isPasswordCorrect){return res.status(500).json('Old  password is invalid')}
+
+        user.password = newPassword
+
+        await user.save()
+
+        user.password = undefined
+
+        res.status(200).json({
+            success: true ,
+            message: 'Password changed',
+        })
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false ,
+            message: error.message
+        })
+    }
+}
+
+export {register,login,getProfile,logout,changePassword}
