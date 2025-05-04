@@ -26,4 +26,15 @@ async function isLoggedIn(req,res,next){
     }
 }
 
-export {isLoggedIn}
+const  authorizedRoles = (...roles) => async (req,res,next) =>{
+    
+    const currentRole = req.user.role
+
+    if(!roles.includes(currentRole)){
+        return res.status(500).json('You do not have the  access to this route !')
+    }
+
+    next()
+}
+
+export {isLoggedIn,authorizedRoles}
